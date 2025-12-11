@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Global</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Chat Global</h1>
+    <div class="subtitle">Entrar em um chat do seu idioma</div>
+
+    <div class="lang-buttons">
+      <button onclick="goToLangChat('pt')">Português</button>
+      <button onclick="goToLangChat('en')">Inglês</button>
+      <button onclick="goToLangChat('es')">Espanhol</button>
+    </div>
+
+    <input id="user" placeholder="Seu nome" />
+    <input id="message" placeholder="Mensagem" />
+    <button id="sendBtn">Enviar</button>
+
+    <ul id="messages"></ul>
+    <div id="typingStatus"></div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="chat-global.js"></script>
+</body>
+</html>

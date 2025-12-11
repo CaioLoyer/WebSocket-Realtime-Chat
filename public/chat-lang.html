@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat por Idioma</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1 id="roomTitle"></h1>
+
+    <button class="back-btn" onclick="goBack()">Voltar</button>
+
+    <input id="user" placeholder="Seu nome" />
+    <input id="message" placeholder="Mensagem" />
+    <button id="sendBtn">Enviar</button>
+
+    <ul id="messages"></ul>
+    <div id="typingStatus"></div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="chat-lang.js"></script>
+</body>
+</html>
