@@ -100,7 +100,6 @@
       document.querySelector("#sendBtn").onclick = () => {
         if (!msg.value.trim()) return;
 
-        // register user before sending for mentions
         socket.emit("register_user", { user: user.value || "Anônimo" });
 
         socket.emit("send_message_lang", {

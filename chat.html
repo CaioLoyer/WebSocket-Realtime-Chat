@@ -73,76 +73,79 @@
       <button id="sendBtn">Enviar</button>
 
       <ul id="messages"></ul>
-      <div id="typingStatus" style="font-size: 14px; color: gray; margin-top: 5px;"></div>
+      <div
+        id="typingStatus"
+        style="font-size: 14px; color: gray; margin-top: 5px"
+      ></div>
     </div>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     <script>
-     
-      const socket = io("http://localhost:3000");
-
-      const user = document.querySelector("#user");
-      const msg = document.querySelector("#message");
-      const list = document.querySelector("#messages");
-      const typingStatus = document.getElementById("typingStatus");
+      const socket = io('http://172.23.130.210:3000');
+      const user = document.querySelector('#user');
+      const msg = document.querySelector('#message');
+      const list = document.querySelector('#messages');
+      const typingStatus = document.getElementById('typingStatus');
       let typingTimeout;
-      const TYPING_INTERVAL = 1500; // ms
+      const TYPING_INTERVAL = 5000;
 
-     
-    
-      socket.emit("join_room", { lang: "global" });
+      socket.emit('join_room', { lang: 'global' });
 
-      document.querySelector("#sendBtn").onclick = () => {
+      document.querySelector('#sendBtn').onclick = () => {
         if (!msg.value.trim()) return;
 
-        // register user before sending for mentions
-        socket.emit("register_user", { user: user.value || "Anônimo" });
+        socket.emit('register_user', { user: user.value || 'Anônimo' });
 
-        socket.emit("send_message", {
-          user: user.value || "Anônimo",
+        socket.emit('send_message', {
+          user: user.value || 'Anônimo',
           message: msg.value,
         });
 
-        msg.value = "";
+        msg.value = '';
       };
 
-      msg.addEventListener("input", () => {
-        socket.emit("typing", { user: user.value || "Anônimo", room: "global" });
+      msg.addEventListener('input', () => {
+        socket.emit('typing', {
+          user: user.value || 'Anônimo',
+          room: 'global',
+        });
 
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
-          socket.emit("stop_typing", { user: user.value || "Anônimo", room: "global" });
+          socket.emit('stop_typing', {
+            user: user.value || 'Anônimo',
+            room: 'global',
+          });
         }, TYPING_INTERVAL);
       });
 
-  
-      socket.on("new_message", (data) => {
-        const li = document.createElement("li");
+      socket.on('new_message', (data) => {
+        const li = document.createElement('li');
         const time = new Date(data.timestamp).toLocaleTimeString(undefined, {
-          hour: "2-digit",
-          minute: "2-digit"
+          hour: '2-digit',
+          minute: '2-digit',
         });
         li.textContent = `(${time}) ${data.user}: ${data.message}`;
         list.appendChild(li);
       });
 
-      // highlight messages when user is mentioned
-      socket.on("highlight_message", (data) => {
-        const li = document.createElement("li");
-        li.style.background = "#ffff99";
-        li.style.fontWeight = "bold";
+      // aviso mencao
+      socket.on('highlight_message', (data) => {
+        const li = document.createElement('li');
+        li.style.background = '#ffff99';
+        li.style.fontWeight = 'bold';
         const time = new Date(data.timestamp).toLocaleTimeString(undefined, {
-          hour: "2-digit",
-          minute: "2-digit",
+          hour: '2-digit',
+          minute: '2-digit',
         });
         li.textContent = `(Mencionado) (${time}) ${data.from}: ${data.message}`;
         list.appendChild(li);
       });
 
-      socket.on("users_typing_update", (typingUsers) => {
+      socket.on('users_typing_update', (typingUsers) => {
         if (!typingUsers || typingUsers.length === 0) {
-          typingStatus.textContent = "";
+          typingStatus.textContent = '';
           return;
         }
         if (typingUsers.length === 1) {
@@ -156,7 +159,6 @@
         typingStatus.textContent = `${typingUsers.length} pessoas estão digitando...`;
       });
 
-   
       function goToLangChat(lang) {
         window.location.href = `chat-lang.html?lang=${lang}`;
       }
