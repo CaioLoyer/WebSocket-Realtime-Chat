@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Chat Global</title>
+    <title>Chat por Idioma</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -56,16 +56,8 @@
   </head>
 
   <body>
-    <h1>Chat Global</h1>
-
-    <div id="language-select">
-      <h3>Entrar em um chat do seu idioma</h3>
-      <div class="lang-buttons">
-        <button onclick="goToLangChat('pt')">Português</button>
-        <button onclick="goToLangChat('en')">Inglês</button>
-        <button onclick="goToLangChat('es')">Espanhol</button>
-      </div>
-    </div>
+    <h1 id="roomTitle"></h1>
+    <button class="back-btn" onclick="goBack()">Voltar para Home</button>
 
     <div id="chat-container">
       <input id="user" placeholder="Seu nome" />
@@ -79,7 +71,20 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     <script>
-     
+      
+      const params = new URLSearchParams(window.location.search);
+      const lang = params.get("lang") || "pt";
+
+      const languages = {
+        pt: { label: "Português", flag: "🇧🇷" },
+        en: { label: "English", flag: "🇺🇸" },
+        es: { label: "Español", flag: "🇪🇸" },
+      };
+
+      const langMeta = languages[lang] || { label: "Chat por Idioma", flag: "" };
+      document.getElementById("roomTitle").textContent = `${langMeta.flag} Chat em ${langMeta.label}`.trim();
+      document.title = `${langMeta.flag} Chat em ${langMeta.label}`.trim();
+
       const socket = io("http://localhost:3000");
 
       const user = document.querySelector("#user");
@@ -89,41 +94,45 @@
       let typingTimeout;
       const TYPING_INTERVAL = 1500; // ms
 
-     
-    
-      socket.emit("join_room", { lang: "global" });
+      
+      socket.emit("join_room", { lang });
 
       document.querySelector("#sendBtn").onclick = () => {
         if (!msg.value.trim()) return;
 
-        socket.emit("send_message", {
+        socket.emit("send_message_lang", {
           user: user.value || "Anônimo",
           message: msg.value,
+          lang: lang,
         });
 
         msg.value = "";
       };
 
       msg.addEventListener("input", () => {
-        socket.emit("typing", { user: user.value || "Anônimo", room: "global" });
+        socket.emit("typing", { user: user.value || "Anônimo", room: lang });
 
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
-          socket.emit("stop_typing", { user: user.value || "Anônimo", room: "global" });
+          socket.emit("stop_typing", { user: user.value || "Anônimo", room: lang });
         }, TYPING_INTERVAL);
       });
 
-  
-      socket.on("new_message", (data) => {
+      socket.on("new_message_lang", (data) => {
         const li = document.createElement("li");
         const time = new Date(data.timestamp).toLocaleTimeString(undefined, {
           hour: "2-digit",
-          minute: "2-digit"
+          minute: "2-digit",
         });
-        li.textContent = `(${time}) ${data.user}: ${data.message}`;
+        li.textContent = `(${time}) ${langMeta.flag} ${data.user}: ${data.message}`;
         list.appendChild(li);
       });
 
+      function goBack() {
+        window.location.href = "chat.html";
+      }
+      
+      //mostrando o usuario digitando
       socket.on("users_typing_update", (typingUsers) => {
         if (!typingUsers || typingUsers.length === 0) {
           typingStatus.textContent = "";
@@ -139,11 +148,6 @@
         }
         typingStatus.textContent = `${typingUsers.length} pessoas estão digitando...`;
       });
-
-   
-      function goToLangChat(lang) {
-        window.location.href = `chat-lang.html?lang=${lang}`;
-      }
     </script>
   </body>
 </html>
