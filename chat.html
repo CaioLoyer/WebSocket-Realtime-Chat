@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chat em Tempo Real</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+  </head>
+  <body>
+    <h1>Chat webSocket</h1>
+    <input id="user" placeholder="Seu nome" />
+    <input id="message" placeholder="Mensagem" />
+    <button id="sendBtn">Enviar</button>
+    <ul id="messages"></ul>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+      const socket = io('http://localhost:3000');
+      const user = document.querySelector('#user');
+      const msg = document.querySelector('#message');
+      const list = document.querySelector('#messages');
+
+      document.querySelector('#sendBtn').onclick = () => {
+        socket.emit('send_message', {
+          user: user.value || 'Anônimo',
+          message: msg.value,
+        });
+        msg.value = '';
+      };
+
+      socket.on('new_message', (data) => {
+        const li = document.createElement('li');
+        li.textContent = `[${data.timestamp}] ${data.user}: ${data.message}`;
+        list.appendChild(li);
+      });
+    </script>
+  </body>
+</html>
